@@ -24,10 +24,11 @@ pub fn byte_to_bit(mut dec:u32,bit:u8)->String{
 }
 
 pub fn bit_to_bytes_array(bit:&str)->Vec<u8>{
-
+    
     let mut bytes:Vec<u8> = Vec::new();
  
     let mut temp=0;
+
     while temp<bit.len(){
  
        let byte = usize::from_str_radix(&bit[temp..temp+8],2).unwrap();
