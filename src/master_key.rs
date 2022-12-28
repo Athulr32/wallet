@@ -21,10 +21,6 @@ impl MasterKeys {
 
         let public_key_bytes = decode(&master_public_key.to_string()).unwrap();
 
-        println!("{}", master_public_key);
-        let big = BigUint::from_bytes_be(&public_key_bytes);
-
-        println!("{}", big);
         let master_public_key_bits = byte_array_to_bit(&public_key_bytes);
 
         let mut master_chain_code = [0u8; 32];

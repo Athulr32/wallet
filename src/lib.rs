@@ -122,7 +122,7 @@ pub fn verify_mnemonic(mnemonic_enter: &str) -> bool {
     //Converting the entropy bit to byte for sha256 hashing
     let user_entropy_byte_array = bit_to_bytes_array(user_entropy_without_checksum);
 
-    let sha256_of_user_entropy_byte_array = sha256sum(user_entropy_byte_array);
+    let sha256_of_user_entropy_byte_array = sha256sum(&user_entropy_byte_array);
 
     //Check if the checksum matches
 

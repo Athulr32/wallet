@@ -4,7 +4,7 @@ use hmac::{Hmac, Mac};
 use secp256k1::{PublicKey, Secp256k1, SecretKey};
 use sha2::Sha512;
 use sha2::{Digest, Sha256};
-
+use bs58::encode;
 pub fn byte_to_bit(mut dec: u32, bit: u8) -> String {
     let mut bin = String::new();
     let mut temp: u32;
@@ -51,7 +51,7 @@ pub fn byte_array_to_bit(byte_arr: &Vec<u8>) -> String {
     bits
 }
 
-pub fn sha256sum(byte_array: Vec<u8>) -> Vec<u8> {
+pub fn sha256sum(byte_array: &Vec<u8>) -> Vec<u8> {
     let mut hasher = Sha256::new();
     hasher.update(byte_array);
 
@@ -145,12 +145,12 @@ pub fn binary_addition(bin1: &str, bin2: &str) -> String {
         else if int_i + int_j == 2{
 
             if reminder == 0{
-                println!("JI");
+            
                 result.push('0');
                 reminder=1;
             }
             else{
-                println!("JfaeI");
+            
                 result.push('1');
                 reminder=1;
             }
@@ -160,4 +160,24 @@ pub fn binary_addition(bin1: &str, bin2: &str) -> String {
     }
 
     result.chars().rev().collect::<String>()
+}
+
+
+
+pub fn base58check(seed:&Vec<u8>)->String{
+
+    let mut payload = seed.clone();
+    let ver:u32 = 0x0488ade4;
+    let ver_byte = ver.to_be_bytes();
+  
+    for i in ver_byte.len()-1..0{
+        payload.insert(0,ver_byte[i]);
+    }
+
+   let mut checksum:Vec<u8> = sha256sum(&sha256sum(&payload))[0..4].to_vec();
+    payload.append(&mut checksum);
+
+    let encoded = encode(&payload).into_string();
+    encoded
+
 }
