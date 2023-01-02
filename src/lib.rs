@@ -1,20 +1,10 @@
 pub mod conversion;
-pub mod master_key;
+pub mod keys;
 pub mod mnemonic;
 pub mod seed_gen;
-pub mod words;
 use crate::conversion::{bit_to_bytes_array, byte_to_bit, sha256sum,binary_addition};
-use crate::words::WORDS;
+use crate::mnemonic::WORDS;
 
-#[cfg(test)]
-mod tests {
-    use crate::conversion::{byte_to_bit, binary_addition};
-
-    #[test]
-    fn conversion_test() {
-        assert_eq!("01110110", binary_addition("10101010", "11001100"))
-    }
-}
 
 pub mod entropy_generator {
 

@@ -5,6 +5,8 @@ use secp256k1::{PublicKey, Secp256k1, SecretKey};
 use sha2::Sha512;
 use sha2::{Digest, Sha256};
 use bs58::encode;
+
+
 pub fn byte_to_bit(mut dec: u32, bit: u8) -> String {
     let mut bin = String::new();
     let mut temp: u32;

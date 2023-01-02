@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 rand="0.8.5"
-rand_chacha="0.3.0"
 sha2="0.10.6"
 hex="0.4.3"
 pbkdf2 = "0.11.0"

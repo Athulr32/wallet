@@ -356,7 +356,6 @@ dependencies = [
  "num",
  "pbkdf2",
  "rand",
- "rand_chacha",
  "secp256k1 0.25.0",
  "sha2",
 ]
