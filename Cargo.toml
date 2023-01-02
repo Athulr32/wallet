@@ -20,3 +20,5 @@ bitcoin_hashes = "0.11.0"
 base58 = "0.2.0"
 sha3 = "0.10.6"
 tiny-keccak = { version = "2.0.0", features = ["keccak"] }
+tui = "0.19"
+crossterm = "0.25"

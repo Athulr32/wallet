@@ -1,12 +1,6 @@
 use hex::encode;
 // use hmac::{Hmac, Mac};
-use hmac_sha512::HMAC;
-use secp256k1::PublicKey;
 use secp256k1::Secp256k1;
-use secp256k1::SecretKey;
-use sha2::Sha512;
-use wallet::conversion::base58check;
-use wallet::keys::ExtendedPubKey;
 use wallet::keys::Index;
 use bitcoin::util::base58::check_encode_slice;
 use wallet::keys::ExtendedPrivKey;
@@ -15,8 +9,7 @@ use wallet::seed_gen::Seed;
 use wallet::verify_mnemonic;
 
 use bitcoin::util::base58::{from, from_check};
-use bitcoin::util::bip32::ChildNumber;
-use bitcoin_hashes::hmac::HmacEngine;
+
 use bitcoin_hashes::{sha512, Hash, HashEngine, Hmac};
 //Only bytes and binary
 //Bytes in vector<u8> and binary in string form
@@ -65,11 +58,14 @@ fn main() {
 
     let valid = verify_mnemonic(&mnemonic_string);
 
+    if !valid{
+        panic!("Invalid Mnemonics");
+    }
+
     let seed = Seed::gen(&mnemonic_string);
 
     let master_key = ExtendedPrivKey::new_master(&seed);
 
-    let secp = Secp256k1::new();
     let account = master_key.ckd_priv(Index::Hardened { index: 44 });
     let account1 = account.ckd_priv(Index::Hardened { index: 60 });
     let account2 = account1.ckd_priv(Index::Hardened { index: 0 });
@@ -77,8 +73,8 @@ fn main() {
 
     let first_acc = account3.ckd_priv(Index::Normal { index: 0 });
 
-    first_acc.generate_address(Network::Ethereum);
-    
+   let address = first_acc.generate_address(Network::Ethereum).unwrap();
+    println!("{}",address);
 
 
 }

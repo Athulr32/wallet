@@ -1,19 +1,15 @@
+use core::panic;
 
-use crate::{
-    conversion::{byte_array_to_bit, byte_to_bit},
-    seed_gen::Seed,
-};
-use hex::encode;
+use crate::seed_gen::Seed;
+use hex::{decode, encode};
 use hmac::{Hmac, Mac};
-use num::BigUint;
 use secp256k1::{PublicKey, Secp256k1, SecretKey};
 use sha2::Sha512;
-use tiny_keccak::{Keccak,Hasher};
+use tiny_keccak::{Hasher, Keccak};
 
-
-pub enum Network{
+pub enum Network {
     Ethereum,
-    Bitcoin
+    Bitcoin,
 }
 
 #[derive(Debug)]
@@ -82,6 +78,19 @@ impl ExtendedPubKey {
             Err("Index should be less than 2^31".to_string())
         }
     }
+
+    pub fn generate_address(&self, network: Network) {
+        if let Network::Ethereum = network {
+            //Kecck
+            let mut output = [0; 32];
+            let secp = Secp256k1::new();
+
+            let mut keccak = Keccak::v256();
+            keccak.update(&self.public_key.serialize_uncompressed()[1..]);
+            keccak.finalize(&mut output);
+            println!("{}", encode(&output[12..]));
+        }
+    }
 }
 
 impl ExtendedPrivKey {
@@ -138,24 +147,53 @@ impl ExtendedPrivKey {
     }
 
     //Ethereum address
-    pub fn generate_address(&self,network:Network) {
-
-        if let Network::Ethereum = network{
-            //Kecck
-            let mut output =[0;32];
-            let secp = Secp256k1::new();
-            let pub_key = PublicKey::from_secret_key(&secp,&self.private_key).serialize_uncompressed();
-            println!("{}",encode(pub_key));
-
-            let  mut shaa3 = Keccak::v256();
-            shaa3.update(&pub_key[1..]);
-            shaa3.finalize(&mut output);
-            println!("{}",encode(&output[12..]));
+    pub fn generate_address(&self, network: Network) -> Result<String, String> {
         
-            
+        if let Network::Ethereum = network {
+            //Kecck
+            let mut output = [0; 32];
+            let secp = Secp256k1::new();
+            let pub_key =
+                PublicKey::from_secret_key(&secp, &self.private_key).serialize_uncompressed();
+
+            let mut keccak = Keccak::v256();
+            keccak.update(&pub_key[1..]);
+            keccak.finalize(&mut output);
+
+            //EIP-55
+            let mut output_hash = [0; 32];
+            let mut keccak = Keccak::v256();
+
+            keccak.update(&encode(&output[12..]).as_bytes());
+
+            keccak.finalize(&mut output_hash);
+            println!("{}", encode(&output[12..]));
+            let mut address: Vec<char> = encode(&output[12..]).to_string().chars().collect();
+            let address_hash: Vec<char> = encode(&output_hash[..]).chars().collect();
+
+            for (index, value) in address.iter_mut().enumerate() {
+                if !value.is_alphabetic() {
+                    continue;
+                } else {
+                    match value {
+                        'a'..='f' => {
+                            let num =
+                                i8::from_str_radix(&address_hash[index].to_string(), 16).unwrap();
+                    
+                            if num > 7 {
+                                *value = value.to_ascii_uppercase();
+                            }
+                        }
+                        _ => (),
+                    }
+                }
+            }
+
+            let address = String::from_iter(address);
+            let address_hash = String::from_iter(address_hash);
+            Ok(address)
+        } else {
+            Err("Invalid address".to_string())
         }
-
-
-
     }
 }
