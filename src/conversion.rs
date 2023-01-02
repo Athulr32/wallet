@@ -1,12 +1,14 @@
-use hex::decode;
+use hex::{encode,decode};
 
 use hmac::{Hmac, Mac};
 use secp256k1::{PublicKey, Secp256k1, SecretKey};
 use sha2::Sha512;
 use sha2::{Digest, Sha256};
-use bs58::encode;
 
+use base58::ToBase58;
+use std::str;
 
+use bitcoin::util::base58::encode_slice;
 pub fn byte_to_bit(mut dec: u32, bit: u8) -> String {
     let mut bin = String::new();
     let mut temp: u32;
@@ -54,6 +56,7 @@ pub fn byte_array_to_bit(byte_arr: &Vec<u8>) -> String {
 }
 
 pub fn sha256sum(byte_array: &Vec<u8>) -> Vec<u8> {
+    
     let mut hasher = Sha256::new();
     hasher.update(byte_array);
 
@@ -169,17 +172,25 @@ pub fn binary_addition(bin1: &str, bin2: &str) -> String {
 pub fn base58check(seed:&Vec<u8>)->String{
 
     let mut payload = seed.clone();
-    let ver:u32 = 0x0488ade4;
-    let ver_byte = ver.to_be_bytes();
-  
-    for i in ver_byte.len()-1..0{
+
+    let ver = "0488B21E";
+    let ver_byte = decode(ver).unwrap();
+    println!("{:?}",payload);
+    println!("{:?}",ver_byte);
+    let len = ver_byte.len();
+
+    for i in (0..len).rev(){
         payload.insert(0,ver_byte[i]);
     }
+  
+   let mut checksum:Vec<u8> = sha256sum(&sha256sum(&payload));
 
-   let mut checksum:Vec<u8> = sha256sum(&sha256sum(&payload))[0..4].to_vec();
-    payload.append(&mut checksum);
 
-    let encoded = encode(&payload).into_string();
-    encoded
-
+    payload.append(&mut checksum[0..4].to_vec());
+  
+    let base = encode_slice(&payload);
+    println!("{}",base);
+    "Ji".to_string()
+    
 }
+

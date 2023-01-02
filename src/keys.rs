@@ -3,17 +3,22 @@ use crate::{
     conversion::{byte_array_to_bit, byte_to_bit},
     seed_gen::Seed,
 };
-use hex::decode;
+use hex::encode;
 use hmac::{Hmac, Mac};
 use num::BigUint;
 use secp256k1::{PublicKey, Secp256k1, SecretKey};
 use sha2::Sha512;
+use tiny_keccak::{Keccak,Hasher};
+
+
+pub enum Network{
+    Ethereum,
+    Bitcoin
+}
 
 #[derive(Debug)]
 
-pub struct ChainCode(Vec<u8>);
-
-
+pub struct ChainCode(pub Vec<u8>);
 
 #[derive(Debug)]
 pub enum Index {
@@ -130,5 +135,27 @@ impl ExtendedPrivKey {
             index: index,
             depth: &self.depth + 1,
         }
+    }
+
+    //Ethereum address
+    pub fn generate_address(&self,network:Network) {
+
+        if let Network::Ethereum = network{
+            //Kecck
+            let mut output =[0;32];
+            let secp = Secp256k1::new();
+            let pub_key = PublicKey::from_secret_key(&secp,&self.private_key).serialize_uncompressed();
+            println!("{}",encode(pub_key));
+
+            let  mut shaa3 = Keccak::v256();
+            shaa3.update(&pub_key[1..]);
+            shaa3.finalize(&mut output);
+            println!("{}",encode(&output[12..]));
+        
+            
+        }
+
+
+
     }
 }

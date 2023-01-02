@@ -8,12 +8,12 @@ use sha2::Sha512;
 use wallet::conversion::base58check;
 use wallet::keys::ExtendedPubKey;
 use wallet::keys::Index;
-
+use bitcoin::util::base58::check_encode_slice;
 use wallet::keys::ExtendedPrivKey;
+use wallet::keys::Network;
 use wallet::seed_gen::Seed;
 use wallet::verify_mnemonic;
 
-use bitcoin::network::constants::Network;
 use bitcoin::util::base58::{from, from_check};
 use bitcoin::util::bip32::ChildNumber;
 use bitcoin_hashes::hmac::HmacEngine;
@@ -59,7 +59,7 @@ fn main() {
     //     println!("{:?}",mnemonics);
 
     let mnemonic_string = String::from(
-        "observe impact right enforce shrug tribe fatal tray feel penalty orbit obtain",
+        "retreat light country copper farm pattern delay gospel lawn cram power park",
     ); //String::from("fluid industry raccoon industry amateur tattoo cinnamon dog favorite will catalog huge");
     let mnemonic_string = mnemonic_string.trim();
 
@@ -69,15 +69,16 @@ fn main() {
 
     let master_key = ExtendedPrivKey::new_master(&seed);
 
+    let secp = Secp256k1::new();
     let account = master_key.ckd_priv(Index::Hardened { index: 44 });
     let account1 = account.ckd_priv(Index::Hardened { index: 60 });
     let account2 = account1.ckd_priv(Index::Hardened { index: 0 });
     let account3 = account2.ckd_priv(Index::Normal { index: 0 });
 
-    let address = account3.ckd_priv(Index::Normal { index: 0 });
+    let first_acc = account3.ckd_priv(Index::Normal { index: 0 });
 
-    println!("{}",base58check(&address.private_key[..].to_vec()));
-
+    first_acc.generate_address(Network::Ethereum);
+    
 
 
 }
