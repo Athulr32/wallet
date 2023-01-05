@@ -1,5 +1,3 @@
-use core::panic;
-
 use crate::seed_gen::Seed;
 use hex::{decode, encode};
 use hmac::{Hmac, Mac};
@@ -144,12 +142,14 @@ impl ExtendedPrivKey {
             index: index,
             depth: &self.depth + 1,
         }
+        
     }
 
     //Ethereum address
     pub fn generate_address(&self, network: Network) -> Result<String, String> {
-        
+
         if let Network::Ethereum = network {
+
             //Kecck
             let mut output = [0; 32];
             let secp = Secp256k1::new();
@@ -168,10 +168,12 @@ impl ExtendedPrivKey {
 
             keccak.finalize(&mut output_hash);
             println!("{}", encode(&output[12..]));
+
             let mut address: Vec<char> = encode(&output[12..]).to_string().chars().collect();
             let address_hash: Vec<char> = encode(&output_hash[..]).chars().collect();
 
             for (index, value) in address.iter_mut().enumerate() {
+
                 if !value.is_alphabetic() {
                     continue;
                 } else {
@@ -192,6 +194,7 @@ impl ExtendedPrivKey {
             let address = String::from_iter(address);
             let address_hash = String::from_iter(address_hash);
             Ok(address)
+
         } else {
             Err("Invalid address".to_string())
         }
